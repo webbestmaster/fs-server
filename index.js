@@ -52,7 +52,7 @@ Server.prototype.initialize = function (userConfigArg) {
 	config = replaceValues(userConfigArg || {}, require('./data/defaults-config'));
 
 	fileHunter = new FileHunter({
-		root: path.normalize([process.cwd(), config.root].join(path.sep)),
+		root: path.join(process.cwd(), config.root),
 		page404: config.page404
 	});
 

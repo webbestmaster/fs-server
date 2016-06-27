@@ -11,13 +11,12 @@ function FileHunter(options) {
 
 	var fileHunter = this;
 
-	fileHunter.pathSep = path.sep;
 	fileHunter.root = options.root;
 
 	if (defaultsConfig.page404 === options.page404) {
 		fileHunter.page404 = options.page404;
 	} else {
-		fileHunter.page404 = path.normalize(options.root + path.sep + options.page404);
+		fileHunter.page404 = path.join(options.root, options.page404);
 	}
 
 	fileHunter.send = fileHunter.send.bind(fileHunter);
@@ -33,8 +32,7 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 	// FIXME: add here check for err if needed
 	var fileHunter = this,
 		reqUrl = url.parse(req.url),
-		pathSep = fileHunter.pathSep,
-		pathName = path.normalize(fileHunter.root + pathSep + reqUrl.pathname);
+		pathName = path.join(fileHunter.root, reqUrl.pathname);
 
 	// detect file or folder
 	fs.stat(pathName, function (err, fileInfo) {
@@ -44,7 +42,7 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 			// if file nor found try to find relative req.referer
 			if (req.headers.referer) {
 				var referer = url.parse(req.headers.referer).pathname,
-					refPathName = path.normalize(fileHunter.root + pathSep + referer + pathSep + reqUrl.pathname);
+					refPathName = path.join(fileHunter.root, referer, reqUrl.pathname);
 
 				fs.stat(refPathName, function (err, fileInfo) {
 
@@ -54,7 +52,7 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 
 					// if path walk to directory - add /index.html to end ot the path
 					if (fileInfo.isDirectory()) {
-						refPathName = path.normalize(refPathName + pathSep + 'index.html');
+						refPathName = path.join(refPathName, 'index.html');
 					}
 
 					cb(req, res, null, refPathName, fileInfo);
@@ -71,7 +69,7 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 
 		// if path walk to directory - add /index.html to end ot the path
 		if (fileInfo.isDirectory()) {
-			pathName = path.normalize(pathName + pathSep + 'index.html');
+			pathName = path.join(pathName, 'index.html');
 		}
 
 		cb(req, res, null, pathName, fileInfo);

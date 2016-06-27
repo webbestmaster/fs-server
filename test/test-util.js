@@ -80,6 +80,28 @@ module.exports = {
 
 	},
 
+	readDirs: function () {
+
+		var testUtil = this,
+			dirs = testUtil.toArray(arguments);
+
+		return Promise.all(dirs.map(function (dir) {
+			return testUtil.readDir(dir);
+		}))
+		.then(function (dirs) {
+
+			var filesHash = {};
+
+			testUtil.mergeArrays(dirs).forEach(function (fileObj) {
+				filesHash[fileObj.path] = fileObj.file;
+			});
+
+			return filesHash;
+
+		});
+
+	},
+
 	readFile: function (filePath) {
 
 		return new Promise(function (resolve, reject) {
@@ -88,9 +110,32 @@ module.exports = {
 					reject(err);
 					return;
 				}
-				resolve(file);
+				resolve({
+					file: file,
+					path: filePath
+				});
 			});
 		});
+
+	},
+
+	toArray: function (likeArray) {
+
+		return Array.prototype.slice.call(likeArray);
+
+	},
+
+	mergeArrays: function (arrays) {
+
+		var testUtil = this,
+			firstArray = testUtil.toArray(arrays[0]),
+			i, len;
+
+		for (i = 1, len = arrays.length; i < len; i += 1) {
+			firstArray = firstArray.concat(arrays[i]);
+		}
+
+		return firstArray;
 
 	}
 

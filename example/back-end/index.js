@@ -1,4 +1,4 @@
-var Server = require('./../../');
-var userConfig = require('./user-config');
+var Server = require('./../../'); // get server
+var userConfig = require('./user-config'); // get config
 
-new Server(userConfig).run();
+new Server(userConfig).run(); // create server with config and run

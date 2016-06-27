@@ -13,6 +13,6 @@ module.exports = {
 	},
 */
 
-	page404: path.normalize([__dirname, '404', 'index.html'].join(path.sep)) // used
+	page404: path.join(__dirname, '404', 'index.html') // used
 
 };
