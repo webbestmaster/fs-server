@@ -24,20 +24,30 @@ function Server(userConfigArg) {
 
 	var server = this;
 
-	server.attr = {
-		httpServer: null,
-		config: null
-	};
-
 	server.initialize(userConfigArg);
 
 }
+
+Server.prototype.KEYS = {
+	CONFIG: 'server:config',
+	HTTP_SERVER: 'server:http-server'
+};
+
+Server.prototype.set = function (key, value) {
+	this.attr[key] = value;
+};
+
+Server.prototype.get = function (key) {
+	return this.attr[key];
+};
 
 Server.prototype.initialize = function (userConfigArg) {
 
 	var config, fileHunter, server, httpServer;
 
 	server = this;
+
+	server.attr = {};
 
 	config = replaceValues(userConfigArg || {}, require('./data/defaults-config'));
 
@@ -51,18 +61,22 @@ Server.prototype.initialize = function (userConfigArg) {
 		fileHunter.find(req, res, null, fileHunter.send);
 	});
 
-	server.attr.httpServer = httpServer;
-	server.attr.config = config;
+	server.set(server.KEYS.HTTP_SERVER, httpServer);
+	server.set(server.KEYS.CONFIG, config);
 
 };
 
 Server.prototype.run = function () {
 
-	var serverAttr = this.attr;
+	var server = this,
+		httpServer = server.get(server.KEYS.HTTP_SERVER),
+		port = server.get(server.KEYS.CONFIG).port;
 
-	serverAttr.httpServer.listen(serverAttr.config.port);
+	httpServer.listen(port);
 
-	console.log('Server started:', ip.address() + ':' + serverAttr.config.port);
+	console.log('Server started:', ip.address() + ':' + port);
+
+	return server;
 
 };
 
