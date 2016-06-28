@@ -74,15 +74,21 @@ it('headers.referer -> should return /internal-folder/test-image-2.jpg ', functi
 	var options = {
 		url: serverUrl + '/test-image-2.jpg',
 		headers: {
-			referer: 'internal-folder'
+			referer: '/internal-folder/'
 		}
 	};
 
 	request(options, function (error, response, body) {
-		assert.equal(body.toString(), filesHash.getAsString('/internal-folder/test-image-2.jpg'));
+
+		var bodyString = body.toString(),
+			requestFileString = filesHash.getAsString('/internal-folder/test-image-2.jpg');
+
+		expect(bodyString.substr(0, 1024)).to.equal(requestFileString.substr(0, 1024));
+
 		done();
+
 	});
-	
+
 });
 
 
