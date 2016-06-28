@@ -1,12 +1,11 @@
 "use strict";
 
-var Server = require('./../'),
-	testUtil = require('./test-util'),
+var testUtil = require('./test-util'),
 	userConfig = require('./user-config'), // user config with custom 404
 	request = require('request'),
 	assert = require('chai').assert,
 	expect = require('chai').expect,
-	server = new Server(userConfig).run(),
+	server = require('./server'),
 	path = require('path'),
 	port = server.get(server.KEYS.CONFIG).port,
 	filesHash = {
@@ -69,21 +68,16 @@ it('should return /internal-folder/index.html', function (done) {
 });
 
 
-it('headers.referer -> should return /internal-folder/test-image-2.jpg ', function (done) {
+it('should return /internal-folder/test-image-2.jpg', function (done) {
 
-	var options = {
-		url: serverUrl + '/test-image-2.jpg',
-		headers: {
-			referer: '/internal-folder/'
-		}
-	};
-
-	request(options, function (error, response, body) {
+	request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
 
 		var bodyString = body.toString(),
-			requestFileString = filesHash.getAsString('/internal-folder/test-image-2.jpg');
+			requestFileString = filesHash.getAsString('/internal-folder/test-image-2.jpg'),
+			extraFileString = filesHash.getAsString('/test-image-2.jpg');
 
-		expect(bodyString.substr(0, 1024)).to.equal(requestFileString.substr(0, 1024));
+		expect(bodyString).to.equal(requestFileString);
+		expect(bodyString).to.not.equal(extraFileString);
 
 		done();
 
@@ -91,6 +85,19 @@ it('headers.referer -> should return /internal-folder/test-image-2.jpg ', functi
 
 });
 
+it('404',function (done) {
 
+	request(serverUrl + '/' + Math.random(), function (error, response, body) {
+
+		var bodyString = body.toString(),
+			page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
+
+		expect(bodyString).to.equal(page404);
+
+		done();
+
+	});
+
+});
 
 

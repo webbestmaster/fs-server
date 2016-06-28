@@ -38,38 +38,20 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 	fs.stat(pathName, function (err, fileInfo) {
 
 		if (err) {
-
-			// if file nor found try to find relative req.referer
-			if (req.headers.referer) {
-				var referer = url.parse(req.headers.referer).pathname,
-					refPathName = path.join(fileHunter.root, referer, reqUrl.pathname);
-
-				fs.stat(refPathName, function (err, fileInfo) {
-
-					if (err) {
-						return cb(req, res, err, pathName);
-					}
-
-					// if path walk to directory - add /index.html to end ot the path
-					if (fileInfo.isDirectory()) {
-						refPathName = path.join(refPathName, 'index.html');
-					}
-
-					cb(req, res, null, refPathName, fileInfo);
-
-				});
-
-			} else {
-				cb(req, res, err, pathName);
-			}
-
+			cb(req, res, err, pathName);
 			return;
-
 		}
 
 		// if path walk to directory - add /index.html to end ot the path
 		if (fileInfo.isDirectory()) {
-			pathName = path.join(pathName, 'index.html');
+			if (pathName[pathName.length - 1] === path.sep) {
+				pathName = path.join(pathName, 'index.html');
+			} else {
+				res.statusCode = 302;
+				res.setHeader('Location', req.url + path.sep);
+				res.end();
+				return;
+			}
 		}
 
 		cb(req, res, null, pathName, fileInfo);
