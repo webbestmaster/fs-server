@@ -57,7 +57,6 @@ Server.prototype.initialize = function (userConfigArg) {
 	});
 
 	httpServer = new http.createServer(function (req, res) {
-		console.log(req.url);
 		fileHunter.find(req, res, null, fileHunter.send);
 	});
 

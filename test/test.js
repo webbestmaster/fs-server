@@ -67,7 +67,6 @@ it('should return /internal-folder/index.html', function (done) {
 	});
 });
 
-
 it('should return /internal-folder/test-image-2.jpg', function (done) {
 
 	request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
