@@ -79,4 +79,19 @@ Server.prototype.run = function () {
 
 };
 
+Server.prototype.destroy = function (cb) {
+
+	var server = this,
+		httpServer = server.get(server.KEYS.HTTP_SERVER),
+		port = server.get(server.KEYS.CONFIG).port;
+
+	server.attr = {};
+
+	httpServer.close(function () {
+		console.log('Server destroyed:', ip.address() + ':' + port);
+		return cb && cb();
+	});
+
+};
+
 module.exports = Server;

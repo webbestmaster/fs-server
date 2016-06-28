@@ -4,7 +4,7 @@ module.exports = {
 
 	port: process.env.PORT || 3000, // used
 
-	root: 'www', // used
+	root: __dirname, // used
 	
 /*
 	onRequest: function (req, res) {

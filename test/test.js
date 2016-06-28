@@ -1,13 +1,12 @@
 "use strict";
 
 var testUtil = require('./test-util'),
+	Server = require('./../'),
 	userConfig = require('./user-config'), // user config with custom 404
 	request = require('request'),
 	assert = require('chai').assert,
 	expect = require('chai').expect,
-	server = require('./server'),
 	path = require('path'),
-	port = server.get(server.KEYS.CONFIG).port,
 	filesHash = {
 		attr: {},
 		getFullPath: function (serverPath) {
@@ -19,16 +18,27 @@ var testUtil = require('./test-util'),
 		getAsString: function (path) {
 			return this.attr[this.getFullPath(path)].toString('utf-8');
 		}
-	},
-	serverUrl = 'http://localhost:' + port;
+	};
 
-describe('fs-server: automatic tests', function () {
+// prepare files
+before(function () {
+	return testUtil.readDirs('./../test', './../data').then(function (filesData) {
+		filesHash.attr = filesData;
+	});
+});
 
-	// prepare files
+describe('fs-server: automatic tests - user config', function () {
+
+	var server, port, serverUrl;
+
 	before(function () {
-		return testUtil.readDirs('./../test', './../data').then(function (filesData) {
-			filesHash.attr = filesData;
-		});
+		server = new Server(userConfig).run();
+		port = server.get(server.KEYS.CONFIG).port;
+		serverUrl = 'http://localhost:' + port;
+	});
+
+	after(function () {
+		server.destroy();
 	});
 
 	it('should return /index.html ', function (done) {
@@ -82,12 +92,47 @@ describe('fs-server: automatic tests', function () {
 
 	});
 
-	it('404',function (done) {
+	it('user page 404',function (done) {
 
 		request(serverUrl + '/' + Math.random(), function (error, response, body) {
 
 			var bodyString = body.toString(),
 				page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
+
+			expect(bodyString).to.equal(page404);
+
+			done();
+
+		});
+
+	});
+
+});
+
+describe('fs-server: automatic tests - default config', function () {
+
+	var server, port, serverUrl;
+
+	before(function () {
+		server = new Server().run();
+		port = server.get(server.KEYS.CONFIG).port;
+		serverUrl = 'http://localhost:' + port;
+	});
+
+	after(function () {
+		server.destroy();
+	});
+
+	it('default page 404',function (done) {
+
+		request(serverUrl + '/' + Math.random(), function (error, response, body) {
+
+			var bodyString = body.toString(),
+				serverConfig = server.get(server.KEYS.CONFIG),
+				page404Path = serverConfig.page404,
+				root = serverConfig.root,
+				page404FilePath = path.join('..', '..', 'data', page404Path.replace(root, '')),
+				page404 = filesHash.getAsString(page404FilePath);
 
 			expect(bodyString).to.equal(page404);
 
