@@ -8,10 +8,14 @@ var loadtest = require('loadtest'),
 	};
 
 loadtest.loadTest(options, function (error, result) {
+
 	if (error) {
-		return console.error('Got an error: %s', error);
+		console.error('Got an error: %s', error);
+	} else {
+		console.log('\n-= Perf test result =-\n');
+		console.log(result);
 	}
-	console.log('\n-= Perf test result =-\n');
-	console.log(result);
+
 	server.destroy();
+
 });
