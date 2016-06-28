@@ -22,77 +22,79 @@ var testUtil = require('./test-util'),
 	},
 	serverUrl = 'http://localhost:' + port;
 
-// prepare files
-before(function () {
-	return testUtil.readDirs('./../test', './../data').then(function (filesData) {
-		filesHash.attr = filesData;
-	});
-});
+describe('fs-server: automatic tests', function () {
 
-it('should return /index.html ', function (done) {
-	request(serverUrl, function (error, response, body) {
-		assert.equal(filesHash.getAsString('index.html'), body);
-		done();
-	});
-});
-
-it('should return /index.html', function (done) {
-	request(serverUrl + '/index.html', function (error, response, body) {
-		assert.equal(filesHash.getAsString('index.html'), body);
-		done();
-	});
-});
-
-it('should return /internal-folder/index.html', function (done) {
-	request(serverUrl + '/internal-folder', function (error, response, body) {
-		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
-		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
-		done();
-	});
-});
-
-it('should return /internal-folder/index.html', function (done) {
-	request(serverUrl + '/internal-folder/', function (error, response, body) {
-		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
-		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
-		done();
-	});
-});
-
-it('should return /internal-folder/index.html', function (done) {
-	request(serverUrl + '/internal-folder/index.html', function (error, response, body) {
-		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
-		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
-		done();
-	});
-});
-
-it('should return /internal-folder/test-image-2.jpg', function (done) {
-
-	request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
-
-		assert(body.toString('utf-8') === filesHash.getAsString('/internal-folder/test-image-2.jpg'));
-		assert(body.toString('utf-8') !== filesHash.getAsString('/test-image-2.jpg'));
-
-		done();
-
+	// prepare files
+	before(function () {
+		return testUtil.readDirs('./../test', './../data').then(function (filesData) {
+			filesHash.attr = filesData;
+		});
 	});
 
-});
+	it('should return /index.html ', function (done) {
+		request(serverUrl, function (error, response, body) {
+			assert.equal(filesHash.getAsString('index.html'), body);
+			done();
+		});
+	});
 
-it('404',function (done) {
+	it('should return /index.html', function (done) {
+		request(serverUrl + '/index.html', function (error, response, body) {
+			assert.equal(filesHash.getAsString('index.html'), body);
+			done();
+		});
+	});
 
-	request(serverUrl + '/' + Math.random(), function (error, response, body) {
+	it('should return /internal-folder/index.html', function (done) {
+		request(serverUrl + '/internal-folder', function (error, response, body) {
+			assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
+			expect(body).to.not.equal(filesHash.getAsString('/index.html'));
+			done();
+		});
+	});
 
-		var bodyString = body.toString(),
-			page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
+	it('should return /internal-folder/index.html', function (done) {
+		request(serverUrl + '/internal-folder/', function (error, response, body) {
+			assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
+			expect(body).to.not.equal(filesHash.getAsString('/index.html'));
+			done();
+		});
+	});
 
-		expect(bodyString).to.equal(page404);
+	it('should return /internal-folder/index.html', function (done) {
+		request(serverUrl + '/internal-folder/index.html', function (error, response, body) {
+			assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
+			expect(body).to.not.equal(filesHash.getAsString('/index.html'));
+			done();
+		});
+	});
 
-		done();
+	it('should return /internal-folder/test-image-2.jpg', function (done) {
+
+		request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
+
+			assert(body.toString('utf-8') === filesHash.getAsString('/internal-folder/test-image-2.jpg'));
+			assert(body.toString('utf-8') !== filesHash.getAsString('/test-image-2.jpg'));
+
+			done();
+
+		});
 
 	});
 
+	it('404',function (done) {
+
+		request(serverUrl + '/' + Math.random(), function (error, response, body) {
+
+			var bodyString = body.toString(),
+				page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
+
+			expect(bodyString).to.equal(page404);
+
+			done();
+
+		});
+
+	});
+
 });
-
-
