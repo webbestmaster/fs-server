@@ -137,6 +137,12 @@ module.exports = {
 
 		return firstArray;
 
+	},
+
+	fileToBase64: function (file) {
+
+		
+
 	}
 
 };

@@ -20,7 +20,8 @@ var Server = require('./../'),
 		getAsString: function (path) {
 			return this.attr[this.getFullPath(path)].toString();
 		}
-	};
+	},
+	serverUrl = 'http://localhost:' + port;
 
 // prepare files
 before(function () {
@@ -29,30 +30,38 @@ before(function () {
 	});
 });
 
-it('should return index.html from /', function (done) {
-	request('http://localhost:' + port, function (error, response, body) {
+it('should return /index.html ', function (done) {
+	request(serverUrl, function (error, response, body) {
 		assert.equal(filesHash.getAsString('index.html'), body);
 		done();
 	});
 });
 
-it('should return index.html from /index.html', function (done) {
-	request('http://localhost:' + port, function (error, response, body) {
+it('should return /index.html', function (done) {
+	request(serverUrl + '/index.html', function (error, response, body) {
 		assert.equal(filesHash.getAsString('index.html'), body);
 		done();
 	});
 });
 
-it('should return index.html from /internal-folder', function (done) {
-	request('http://localhost:' + port + '/internal-folder', function (error, response, body) {
+it('should return /internal-folder/index.html', function (done) {
+	request(serverUrl + '/internal-folder', function (error, response, body) {
 		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
 		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
 		done();
 	});
 });
 
-it('should return index.html from /internal-folder/', function (done) {
-	request('http://localhost:' + port + '/internal-folder/', function (error, response, body) {
+it('should return /internal-folder/index.html', function (done) {
+	request(serverUrl + '/internal-folder/', function (error, response, body) {
+		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
+		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
+		done();
+	});
+});
+
+it('should return /internal-folder/index.html', function (done) {
+	request(serverUrl + '/internal-folder/index.html', function (error, response, body) {
 		assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
 		expect(body).to.not.equal(filesHash.getAsString('/index.html'));
 		done();
@@ -60,6 +69,21 @@ it('should return index.html from /internal-folder/', function (done) {
 });
 
 
+it('headers.referer -> should return /internal-folder/test-image-2.jpg ', function (done) {
+
+	var options = {
+		url: serverUrl + '/test-image-2.jpg',
+		headers: {
+			referer: 'internal-folder'
+		}
+	};
+
+	request(options, function (error, response, body) {
+		assert.equal(body.toString(), filesHash.getAsString('/internal-folder/test-image-2.jpg'));
+		done();
+	});
+	
+});
 
 
 
