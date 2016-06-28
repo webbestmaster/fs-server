@@ -17,7 +17,7 @@ var testUtil = require('./test-util'),
 			return this.attr[this.getFullPath(path)]
 		},
 		getAsString: function (path) {
-			return this.attr[this.getFullPath(path)].toString();
+			return this.attr[this.getFullPath(path)].toString('utf-8');
 		}
 	},
 	serverUrl = 'http://localhost:' + port;
@@ -71,12 +71,8 @@ it('should return /internal-folder/test-image-2.jpg', function (done) {
 
 	request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
 
-		var bodyString = body.toString(),
-			requestFileString = filesHash.getAsString('/internal-folder/test-image-2.jpg'),
-			extraFileString = filesHash.getAsString('/test-image-2.jpg');
-
-		expect(bodyString).to.equal(requestFileString);
-		expect(bodyString).to.not.equal(extraFileString);
+		assert(body.toString('utf-8') === filesHash.getAsString('/internal-folder/test-image-2.jpg'));
+		assert(body.toString('utf-8') !== filesHash.getAsString('/test-image-2.jpg'));
 
 		done();
 
