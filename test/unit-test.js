@@ -56,9 +56,14 @@ describe('fs-server: automatic tests - user config', function () {
 		});
 	});
 
-	it('should return /internal-folder/index.html', function (done) {
-		request(serverUrl + '/internal-folder', function (error, response, body) {
+	it('should return /internal-folder/index.html by 302 to \'path + \/\'', function (done) {
+		var requestPath = '/internal-folder';
+		request(serverUrl + requestPath, function (error, response, body) {
+			// test redirect
+			assert.equal(response.req.path.replace(requestPath, ''), '/');
+			// test requested file
 			assert.equal(filesHash.getAsString('/internal-folder/index.html'), body);
+			// check for other file
 			expect(body).to.not.equal(filesHash.getAsString('/index.html'));
 			done();
 		});
