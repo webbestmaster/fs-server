@@ -12,8 +12,8 @@ mocha test-unit --reporter mochawesome --reporter-options reportDir=$reportsFold
 
 unamestr=`uname`
 reportPath="$reportsFolder/$reportName.html"
-if [[ "$unamestr" == 'Darwin' ]]; then # detect mac os
+if [[ "$unamestr" == 'Darwin' ]]; then # detect MacOS
    open $reportPath
-elif [[ "$unamestr" == 'Linux' ]]; then # detect linux #FIXME: TODO: add needed string instead of 'Linux'
+elif [[ "$unamestr" == 'Linux' ]]; then # detect Linux
    xdg-open $reportPath
 fi
