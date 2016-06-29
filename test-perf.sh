@@ -6,6 +6,6 @@ echo Perf test has been started, wait please...
 
 cd ./test/
 
-node perf-test.js
+node test-perf
 
 echo End perf test

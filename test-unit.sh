@@ -8,7 +8,7 @@ now="$(date +'%Y-%m-%d-%H-%M-%S')"
 reportsFolder=./reports
 reportName=auto-test-$now
 
-mocha unit-test --reporter mochawesome --reporter-options reportDir=$reportsFolder,reportName=$reportName,reportTitle="Auto Test $now",inlineAssets=false
+mocha test-unit --reporter mochawesome --reporter-options reportDir=$reportsFolder,reportName=$reportName,reportTitle="Auto Test $now",inlineAssets=false
 
 unamestr=`uname`
 if [[ "$unamestr" == 'Darwin' ]]; then # detect mac os

@@ -8,8 +8,8 @@
     "type": "git"
   },
   "scripts": {
-    "unit-test": "./unit-test.sh",
-    "perf-test": "./perf-test.sh"
+    "test-unit": "./test-unit.sh",
+    "test-perf": "./test-perf.sh"
   },
   "dependencies": {
     "mime-types": "^2.1.11",

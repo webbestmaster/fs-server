@@ -4,5 +4,5 @@ Use folder test as example.
 
 Usual folder example as example.
 
-To run unit tests - npm run unit-test
-To run perf tests - npm run perf-test
+To run unit tests - npm run test-unit
+To run perf tests - npm run test-perf

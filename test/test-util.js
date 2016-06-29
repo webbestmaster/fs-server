@@ -61,7 +61,7 @@ module.exports = {
 
 		return new Promise(function (resolve, reject) {
 			testUtil
-				.getFilesPath(path.resolve(process.cwd(), dir))
+				.getFilesPath(path.resolve(__dirname, dir))
 				.then(function (filesPath) {
 					return Promise.all(filesPath.map(function (filePath) {
 						return testUtil.readFile(filePath);
