@@ -10,7 +10,9 @@ reportName=auto-test-$now
 
 mocha unit-test --reporter mochawesome --reporter-options reportDir=$reportsFolder,reportName=$reportName,reportTitle="Auto Test $now",inlineAssets=false
 
-# use open "$reportsFolder/$reportName.html" - mac os
-# use xdg-open "$reportsFolder/$reportName.html" - like-debian
-
-xdg-open "$reportsFolder/$reportName.html"
+unamestr=`uname`
+if [[ "$unamestr" == 'Darwin' ]]; then # detect mac os
+   open "$reportsFolder/$reportName.html"
+elif [[ "$unamestr" == 'Linux' ]]; then # detect linux #FIXME: TODO: add needed string instead of 'Linux'
+   xdg-open "$reportsFolder/$reportName.html"
+fi
