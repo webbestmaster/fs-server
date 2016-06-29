@@ -41,9 +41,10 @@ describe('fs-server: automatic tests - user config', function () {
 		server.destroy();
 	});
 
-	it('should return /index.html ', function (done) {
+	it('should return /index.html', function (done) {
 		request(serverUrl, function (error, response, body) {
 			assert.equal(filesHash.getAsString('index.html'), body);
+			assert.equal(response.statusCode, 200);
 			done();
 		});
 	});
@@ -80,31 +81,37 @@ describe('fs-server: automatic tests - user config', function () {
 	});
 
 	it('should return /internal-folder/test-image-2.jpg', function (done) {
-
 		request(serverUrl + '/internal-folder/test-image-2.jpg', function (error, response, body) {
-
 			assert(body.toString('utf-8') === filesHash.getAsString('/internal-folder/test-image-2.jpg'));
 			assert(body.toString('utf-8') !== filesHash.getAsString('/test-image-2.jpg'));
-
 			done();
-
 		});
-
 	});
 
 	it('user page 404',function (done) {
-
 		request(serverUrl + '/' + Math.random(), function (error, response, body) {
-
 			var bodyString = body.toString(),
 				page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
-
 			expect(bodyString).to.equal(page404);
-
+			assert.equal(response.statusCode, 404);
 			done();
-
 		});
+	});
 
+	it('browser\'s cache control',function (done) {
+		request(serverUrl, function (error, response, body) {
+			var options = {
+				url: serverUrl,
+				headers: {
+					'if-modified-since': response.headers['last-modified']
+				}
+			};
+			request(options, function (error, response, body) {
+				assert.equal(response.statusCode, 304);
+				assert.equal(body, '');
+				done();
+			});
+		});
 	});
 
 });
@@ -135,6 +142,7 @@ describe('fs-server: automatic tests - default config', function () {
 				page404 = filesHash.getAsString(page404FilePath);
 
 			expect(bodyString).to.equal(page404);
+			assert.equal(response.statusCode, 404);
 
 			done();
 
