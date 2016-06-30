@@ -9,7 +9,8 @@
   },
   "scripts": {
     "test-unit": "./test-unit.sh",
-    "test-perf": "./test-perf.sh"
+    "test-perf": "./test-perf.sh",
+    "test-cover": "./test-cover.sh"
   },
   "dependencies": {
     "mime-types": "^2.1.11",
@@ -20,6 +21,7 @@
     "mocha": "^2.5.3",
     "mochawesome": "^1.3.5",
     "chai": "^3.5.0",
-    "loadtest": "^1.4.3"
+    "loadtest": "^1.4.3",
+    "istanbul": "0.4.4"
   }
 }
