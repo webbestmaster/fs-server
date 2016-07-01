@@ -93,7 +93,7 @@ describe('fs-server: automatic tests - user config', function () {
 		});
 	});
 
-	it('user page 404',function (done) {
+	it('user page 404', function (done) {
 		request(serverUrl + '/' + Math.random(), function (error, response, body) {
 			var bodyString = body.toString(),
 				page404 = filesHash.getAsString(server.get(server.KEYS.CONFIG).page404);
@@ -103,7 +103,15 @@ describe('fs-server: automatic tests - user config', function () {
 		});
 	});
 
-	it('browser\'s cache control',function (done) {
+	it('default page 404 as not html mime type', function (done) {
+		request(serverUrl + '/' + Math.random() + '.jpg', function (error, response, body) {
+			expect(body).to.equal('');
+			assert.equal(response.statusCode, 404);
+			done();
+		});
+	});
+
+	it('browser\'s cache control', function (done) {
 		request(serverUrl, function (error, response, body) {
 			var options = {
 				url: serverUrl,
@@ -121,7 +129,7 @@ describe('fs-server: automatic tests - user config', function () {
 
 });
 
-describe('fs-server: automatic tests - default config', function () {
+describe('fs-server: test server destroy callback', function () {
 
 	var server, port, serverUrl;
 
@@ -131,28 +139,64 @@ describe('fs-server: automatic tests - default config', function () {
 		serverUrl = 'http://localhost:' + port;
 	});
 
+	it('destroy server', function (done) {
+		server.destroy(done);
+	});
+
+});
+
+describe('fs-server: test encoding', function () {
+
+	var server, port, serverUrl;
+
+	before(function () {
+		server = new Server(userConfig).run();
+		port = server.get(server.KEYS.CONFIG).port;
+		serverUrl = 'http://localhost:' + port;
+	});
+
 	after(function () {
 		server.destroy();
 	});
 
-	it('default page 404',function (done) {
-
-		request(serverUrl + '/' + Math.random(), function (error, response, body) {
-
-			var bodyString = body.toString(),
-				serverConfig = server.get(server.KEYS.CONFIG),
-				page404Path = serverConfig.page404,
-				root = serverConfig.root,
-				page404FilePath = path.join('..', '..', 'data', page404Path.replace(root, '')),
-				page404 = filesHash.getAsString(page404FilePath);
-
-			expect(bodyString).to.equal(page404);
-			assert.equal(response.statusCode, 404);
-
+	it('accept-encoding deflate', function (done) {
+		var options = {
+			url: serverUrl,
+			headers: {
+				'accept-encoding': 'deflate'
+			}
+		};
+		request(options, function (error, response, body) {
+			assert.equal(response.headers['content-encoding'], 'deflate');
 			done();
-
 		});
+	});
 
+	it('accept-encoding gzip', function (done) {
+		var options = {
+			url: serverUrl,
+			headers: {
+				'accept-encoding': 'gzip'
+			}
+		};
+		request(options, function (error, response, body) {
+			assert.equal(response.headers['content-encoding'], 'gzip');
+			done();
+		});
+	});
+
+	it('accept-encoding non exist encoding', function (done) {
+		var options = {
+			url: serverUrl,
+			headers: {
+				'accept-encoding': Math.random()
+			}
+		};
+		request(options, function (error, response, body) {
+			assert.isUndefined(response.headers['content-encoding']);
+			assert.equal(filesHash.getAsString('index.html'), body);
+			done();
+		});
 	});
 
 });
