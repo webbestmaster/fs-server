@@ -8,9 +8,9 @@
     "type": "git"
   },
   "scripts": {
-    "test-unit": "./test-unit.sh",
-    "test-perf": "./test-perf.sh",
-    "test-cover": "./test-cover.sh"
+    "test:unit": "./test-unit.sh",
+    "test:perf": "./test-perf.sh",
+    "test:cover": "./test-cover.sh"
   },
   "dependencies": {
     "mime-types": "^2.1.11",
