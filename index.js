@@ -7,14 +7,11 @@ var http = require('http'),
 
 function replaceValues(from, to) {
 
-	var merge = {},
-		key;
+	var merge = {};
 
-	for (key in to) {
-		if (to.hasOwnProperty(key)) {
-			merge[key] = from.hasOwnProperty(key) ? from[key] : to[key];
-		}
-	}
+	Object.keys(to).forEach(function (key) {
+		merge[key] = from.hasOwnProperty(key) ? from[key] : to[key];
+	});
 
 	return merge;
 
