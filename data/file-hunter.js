@@ -27,6 +27,9 @@ FileHunter.prototype.fakeFileInfo = {
 	mtime: Date.now().toString()
 };
 
+FileHunter.prototype.reDeflate = /\bdeflate\b/;
+FileHunter.prototype.reGzip = /\bgzip\b/;
+
 FileHunter.prototype.find = function (req, res, err, cb) {
 
 	// FIXME: add here check for err if needed
@@ -91,10 +94,10 @@ FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 
 	// Note: this is not a conformant accept-encoding parser.
 	// See http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.3
-	if ((/\bdeflate\b/).test(acceptEncoding)) {
+	if (fileHunter.reDeflate.test(acceptEncoding)) {
 		res.setHeader('Content-Encoding', 'deflate');
 		file.pipe(zlib.createDeflate()).pipe(res);
-	} else if ((/\bgzip\b/).test(acceptEncoding)) {
+	} else if (fileHunter.reGzip.test(acceptEncoding)) {
 		res.setHeader('Content-Encoding', 'gzip');
 		file.pipe(zlib.createGzip()).pipe(res);
 	} else {
