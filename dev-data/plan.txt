@@ -1,3 +1,10 @@
+https://blog.jetbrains.com/webstorm/2015/05/node-js-profiling-in-webstorm-part-1-cpu-profiling/
+https://blog.jetbrains.com/webstorm/2015/07/node-js-profiling-in-webstorm-part-2-memory-profiling/
+
+https://github.com/felixge/node-memory-leak-tutorial
+
+
+
 добавить в тесты проверку на статусКод типо там 200, 302, 304, 404
 
 200 - сделано
