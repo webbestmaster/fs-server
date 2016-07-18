@@ -1,4 +1,7 @@
 https://blog.jetbrains.com/webstorm/2015/05/node-js-profiling-in-webstorm-part-1-cpu-profiling/
+
+node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt
+
 https://blog.jetbrains.com/webstorm/2015/07/node-js-profiling-in-webstorm-part-2-memory-profiling/
 
 https://github.com/felixge/node-memory-leak-tutorial
