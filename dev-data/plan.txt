@@ -1,3 +1,8 @@
+прикрутить апи как у экспресса
+так сделать что бы принимало все типы запросов, а не только гет и пост
+если пришёл запрос типо которого нет - сразу кидать 404, а не пробрасывать ошибку - она тут не нужна
+придумать тему что бы если в функции произошла ошибка - что бы сервер не валился а кидал 500
+
 https://blog.jetbrains.com/webstorm/2015/05/node-js-profiling-in-webstorm-part-1-cpu-profiling/
 
 node --prof-process isolate-0xnnnnnnnnnnnn-v8.log > processed.txt
@@ -6,7 +11,6 @@ https://blog.jetbrains.com/webstorm/2015/07/node-js-profiling-in-webstorm-part-2
 
 https://github.com/felixge/node-memory-leak-tutorial
 
-прикрутить апи как у экспресса
 
 добавить в тесты проверку на статусКод типо там 200, 302, 304, 404
 
