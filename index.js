@@ -54,11 +54,21 @@ Server.prototype.initialize = function (userConfigArg) {
 	});
 
 	httpServer = new http.createServer(function (req, res) {
+
+
+
 		fileHunter.find(req, res, null, fileHunter.send);
+
+
 	});
 
 	server.set(server.KEYS.HTTP_SERVER, httpServer);
 	server.set(server.KEYS.CONFIG, config);
+
+	server.bindings = {
+		GET: [],
+		POST: []
+	};
 
 };
 
@@ -88,6 +98,25 @@ Server.prototype.destroy = function (cb) {
 		console.log('Server destroyed:', ip.address() + ':' + port);
 		return cb && cb();
 	});
+
+};
+
+Server.prototype.bindRequest = function (typeArg, route, callback) {
+
+	var server = this,
+		type = typeArg.toUpperCase(),
+		bindings = server.bindings;
+
+	if (!bindings.hasOwnProperty(type)) {
+		throw new Error('Request type ' + type + ' is not supported!')
+	}
+
+	bindings[type].push({
+		route: route,
+		callback: callback
+	});
+
+	return server;
 
 };
 

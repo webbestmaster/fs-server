@@ -6,7 +6,7 @@ https://blog.jetbrains.com/webstorm/2015/07/node-js-profiling-in-webstorm-part-2
 
 https://github.com/felixge/node-memory-leak-tutorial
 
-
+прикрутить апи как у экспресса
 
 добавить в тесты проверку на статусКод типо там 200, 302, 304, 404
 
