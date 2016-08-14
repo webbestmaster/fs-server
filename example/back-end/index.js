@@ -6,7 +6,7 @@ var server = new Server(userConfig).run(); // create server with config and run
 
 server.bindRequest('get', 'api', function (req, res) {
 
-	res.end('hi!!!!');
+	res.end('hi there !!!!');
 
 });
 
