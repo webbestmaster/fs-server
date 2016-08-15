@@ -13,9 +13,9 @@ server.bindRequest('get', 'api', function (req, res) {
 
 });
 
-server.bindRequest('get', 'api/:dd/ss', function (req, res, match) {
+server.bindRequest('get', 'api/:dd/ss/p:ee', function (req, res, url, dd, ee) {
 
-	res.end('hi dd !!!!      ' + match.join('---'));
+	res.end('hi dd !!!!      ' + dd + '--' + ee);
 
 });
 

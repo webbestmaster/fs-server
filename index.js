@@ -81,17 +81,7 @@ Server.prototype.initialize = function (userConfigArg) {
 				this.removeListener('finish', resFinish);
 			});
 
-
-
-
-
-
-
-
-
-
-			boundRequest.callback(req, res, boundRequest.match);
-
+			boundRequest.callback.apply(null, [req, res].concat(boundRequest.match));
 
 		} else {
 			fileHunter.find(req, res, null, fileHunter.send);
