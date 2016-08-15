@@ -3,8 +3,11 @@ var userConfig = require('./user-config'); // get config
 
 var server = new Server(userConfig).run(); // create server with config and run
 
-
 server.bindRequest('get', 'api', function (req, res) {
+
+	res.asdas.dad
+
+	// throw new Error('pizda!');
 
 	res.end('hi there !!!!');
 

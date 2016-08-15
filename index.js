@@ -59,7 +59,40 @@ Server.prototype.initialize = function (userConfigArg) {
 		var boundRequest = server.findBoundRequest(req);
 
 		if (boundRequest) {
+
+
+
+
+			// TODO: refactor this to more beautiful
+			// bind 500 error
+			function onUncaughtException(err) {
+				console.log(err.message);
+				res.end('500 !!!');
+			}
+
+			process.on('uncaughtException', onUncaughtException);
+
+			console.log(process.listeners('uncaughtException'));
+
+			res.on('finish', function resFinish() {
+				console.log('res - destory');
+				process.removeListener('uncaughtException', onUncaughtException);
+				console.log(process.listeners('uncaughtException'));
+				this.removeListener('finish', resFinish);
+			});
+
+
+
+
+
+
+
+
+
+
 			boundRequest.callback(req, res, boundRequest.match);
+
+
 		} else {
 			fileHunter.find(req, res, null, fileHunter.send);
 		}
