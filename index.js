@@ -59,7 +59,7 @@ Server.prototype.initialize = function (userConfigArg) {
 		var boundRequest = server.findBoundRequest(req);
 
 		if (boundRequest) {
-			boundRequest(req, res);
+			boundRequest.callback(req, res, boundRequest.match);
 		} else {
 			fileHunter.find(req, res, null, fileHunter.send);
 		}
@@ -105,7 +105,7 @@ Server.prototype.destroy = function (cb) {
 
 };
 
-Server.prototype.bindRequest = function (typeArg, regExp, callback) {
+Server.prototype.bindRequest = function (typeArg, route, callback) {
 
 	var server = this,
 		type = typeArg.toUpperCase(),
@@ -116,7 +116,7 @@ Server.prototype.bindRequest = function (typeArg, regExp, callback) {
 	}
 
 	bindings[type].push({
-		regExp: regExp,
+		regExp: routeToRegExp(route),
 		callback: callback
 	});
 
@@ -126,32 +126,52 @@ Server.prototype.bindRequest = function (typeArg, regExp, callback) {
 
 Server.prototype.findBoundRequest = function (req) {
 
-	var method = req.method;
-	var parsedUrl = url.parse(req.url);
-	var pathname = parsedUrl.pathname;
-	var callbackList = this.bindings[method] || [];
-	var callback;
-	var i = callbackList.length;
-	var item;
+	var method = req.method,
+		parsedUrl = url.parse(req.url),
+		pathname = parsedUrl.pathname,
+		callbackList = this.bindings[method] || [],
+		result,
+		match,
+		i = callbackList.length,
+		item;
 
-	if (pathname[pathname.length - 1] !== '/') {
-		pathname += '/';
-	}
-
-	while (!callback && i) {
+	while (!result && i) {
 
 		i -= 1;
 
 		item = callbackList[i];
 
-		if (item.regExp.test(pathname)) {
-			callback = item.callback;
+		match = pathname.match(item.regExp);
+
+		if (match) {
+			result = {
+				match: match,
+				callback: item.callback
+			};
 		}
 
 	}
 
-	return callback;
+	return result;
 
 };
+
+function routeToRegExp(route) {
+
+	var optionalParam = /\((.*?)\)/g,
+		namedParam = /(\(\?)?:\w+/g,
+		splatParam = /\*\w+/g,
+		escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+
+	route = route.replace(escapeRegExp, '\\$&')
+		.replace(optionalParam, '(?:$1)?')
+		.replace(namedParam, function (match, optional) {
+			return optional ? match : '([^/?]+)';
+		})
+		.replace(splatParam, '([^?]*?)');
+
+	return new RegExp('^\/' + route + '\/?(?:\\?([\\s\\S]*))?$');
+
+}
 
 module.exports = Server;
