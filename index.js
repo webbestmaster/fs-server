@@ -3,6 +3,7 @@
 var http = require('http'),
 	path = require('path'),
 	ip = require('ip'),
+	url = require('url'),
 	FileHunter = require('./data/file-hunter');
 
 function replaceValues(from, to) {
@@ -55,10 +56,13 @@ Server.prototype.initialize = function (userConfigArg) {
 
 	httpServer = new http.createServer(function (req, res) {
 
+		var boundRequest = server.findBoundRequest(req);
 
-
-		fileHunter.find(req, res, null, fileHunter.send);
-
+		if (boundRequest) {
+			boundRequest(req, res);
+		} else {
+			fileHunter.find(req, res, null, fileHunter.send);
+		}
 
 	});
 
@@ -101,7 +105,7 @@ Server.prototype.destroy = function (cb) {
 
 };
 
-Server.prototype.bindRequest = function (typeArg, route, callback) {
+Server.prototype.bindRequest = function (typeArg, regExp, callback) {
 
 	var server = this,
 		type = typeArg.toUpperCase(),
@@ -112,11 +116,41 @@ Server.prototype.bindRequest = function (typeArg, route, callback) {
 	}
 
 	bindings[type].push({
-		route: route,
+		regExp: regExp,
 		callback: callback
 	});
 
 	return server;
+
+};
+
+Server.prototype.findBoundRequest = function (req) {
+
+	var method = req.method;
+	var parsedUrl = url.parse(req.url);
+	var pathname = parsedUrl.pathname;
+	var callbackList = this.bindings[method] || [];
+	var callback;
+	var i = callbackList.length;
+	var item;
+
+	if (pathname[pathname.length - 1] !== '/') {
+		pathname += '/';
+	}
+
+	while (!callback && i) {
+
+		i -= 1;
+
+		item = callbackList[i];
+
+		if (item.regExp.test(pathname)) {
+			callback = item.callback;
+		}
+
+	}
+
+	return callback;
 
 };
 
