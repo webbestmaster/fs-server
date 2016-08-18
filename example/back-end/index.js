@@ -5,9 +5,7 @@ var server = new Server(userConfig).run(); // create server with config and run
 
 server.bindRequest('get', 'api', function (req, res) {
 
-	res.asdas.dad
-
-	// throw new Error('pizda!');
+	server.unbindRequest('get', '///api///');
 
 	res.end('hi there !!!!');
 

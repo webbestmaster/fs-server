@@ -63,6 +63,7 @@ Server.prototype.initialize = function (userConfigArg) {
 
 
 
+/*
 			// TODO: refactor this to more beautiful
 			// bind 500 error
 			function onUncaughtException(err) {
@@ -80,8 +81,9 @@ Server.prototype.initialize = function (userConfigArg) {
 				console.log(process.listeners('uncaughtException'));
 				this.removeListener('finish', resFinish);
 			});
+*/
 
-			boundRequest.callback.apply(null, [req, res].concat(boundRequest.match));
+			boundRequest.callback.apply(boundRequest.context, [req, res].concat(boundRequest.match));
 
 		} else {
 			fileHunter.find(req, res, null, fileHunter.send);
@@ -92,9 +94,16 @@ Server.prototype.initialize = function (userConfigArg) {
 	server.set(server.KEYS.HTTP_SERVER, httpServer);
 	server.set(server.KEYS.CONFIG, config);
 
+	// https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 	server.bindings = {
 		GET: [],
-		POST: []
+		POST: [],
+		OPTIONS: [],
+		HEAD: [],
+		PUT: [],
+		DELETE: [],
+		TRACE: [],
+		CONNECT: []
 	};
 
 };
@@ -128,20 +137,53 @@ Server.prototype.destroy = function (cb) {
 
 };
 
-Server.prototype.bindRequest = function (typeArg, route, callback) {
+Server.prototype.bindRequest = function (typeArg, routeArg, callback, context) {
 
 	var server = this,
 		type = typeArg.toUpperCase(),
-		bindings = server.bindings;
+		bindings = server.bindings,
+		route = reduceRouteString(routeArg);
 
 	if (!bindings.hasOwnProperty(type)) {
-		throw new Error('Request type ' + type + ' is not supported!')
+		// add unknow request type
+		bindings[type.toUpperCase()] = [];
 	}
 
+	server.unbindRequest(typeArg, route);
+
 	bindings[type].push({
+		route: route,
 		regExp: routeToRegExp(route),
-		callback: callback
+		callback: callback,
+		context: context || null
 	});
+
+	return server;
+
+};
+
+Server.prototype.unbindRequest = function (typeArg, routeArg) {
+
+	var server = this,
+		type = typeArg.toUpperCase(),
+		bindings = server.bindings,
+		list = bindings[type],
+		route = reduceRouteString(routeArg);
+
+	if (list) {
+
+		list.every(function (data, index, arr) {
+
+			if (data.route === route) {
+				arr.splice(index, 1);
+				return false;
+			}
+
+			return true;
+
+		});
+
+	}
 
 	return server;
 
@@ -153,12 +195,11 @@ Server.prototype.findBoundRequest = function (req) {
 		parsedUrl = url.parse(req.url),
 		pathname = parsedUrl.pathname,
 		callbackList = this.bindings[method] || [],
-		result,
 		match,
 		i = callbackList.length,
 		item;
 
-	while (!result && i) {
+	while (i) {
 
 		i -= 1;
 
@@ -167,24 +208,26 @@ Server.prototype.findBoundRequest = function (req) {
 		match = pathname.match(item.regExp);
 
 		if (match) {
-			result = {
+
+			return {
 				match: match,
-				callback: item.callback
+				callback: item.callback,
+				context: item.context
 			};
+
 		}
 
 	}
 
-	return result;
-
 };
 
-function routeToRegExp(route) {
+function routeToRegExp(routeArg) {
 
 	var optionalParam = /\((.*?)\)/g,
 		namedParam = /(\(\?)?:\w+/g,
 		splatParam = /\*\w+/g,
-		escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+		escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g,
+		route = reduceRouteString(routeArg);
 
 	route = route.replace(escapeRegExp, '\\$&')
 		.replace(optionalParam, '(?:$1)?')
@@ -194,6 +237,12 @@ function routeToRegExp(route) {
 		.replace(splatParam, '([^?]*?)');
 
 	return new RegExp('^\/' + route + '\/?(?:\\?([\\s\\S]*))?$');
+
+}
+
+function reduceRouteString(route) {
+
+	return route.trim().replace(/^\/+|\/+$/g, '');
 
 }
 
