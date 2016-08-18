@@ -144,11 +144,6 @@ Server.prototype.bindRequest = function (typeArg, routeArg, callback, context) {
 		bindings = server.bindings,
 		route = reduceRouteString(routeArg);
 
-	if (!bindings.hasOwnProperty(type)) {
-		// add unknow request type
-		bindings[type.toUpperCase()] = [];
-	}
-
 	server.unbindRequest(typeArg, route);
 
 	bindings[type].push({
@@ -168,7 +163,7 @@ Server.prototype.unbindRequest = function (typeArg, routeArg) {
 		type = typeArg.toUpperCase(),
 		bindings = server.bindings,
 		list = bindings[type],
-		route = reduceRouteString(routeArg);
+		route = reduceRouteString(routeArg || '');
 
 	if (list) {
 
@@ -193,8 +188,8 @@ Server.prototype.findBoundRequest = function (req) {
 
 	var method = req.method,
 		parsedUrl = url.parse(req.url),
-		pathname = parsedUrl.pathname,
-		callbackList = this.bindings[method] || [],
+		pathname = '/' + reduceRouteString(parsedUrl.pathname) + '/',
+		callbackList = this.bindings[method],
 		match,
 		i = callbackList.length,
 		item;
@@ -208,7 +203,6 @@ Server.prototype.findBoundRequest = function (req) {
 		match = pathname.match(item.regExp);
 
 		if (match) {
-
 			return {
 				match: match,
 				callback: item.callback,
@@ -227,13 +221,17 @@ function routeToRegExp(routeArg) {
 		namedParam = /(\(\?)?:\w+/g,
 		splatParam = /\*\w+/g,
 		escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g,
-		route = reduceRouteString(routeArg);
+		// route = reduceRouteString(routeArg);
+		route;
 
-	route = route.replace(escapeRegExp, '\\$&')
+	route = routeArg.replace(escapeRegExp, '\\$&')
 		.replace(optionalParam, '(?:$1)?')
+		.replace(namedParam, '([^/?]+)')
+/*
 		.replace(namedParam, function (match, optional) {
 			return optional ? match : '([^/?]+)';
 		})
+*/
 		.replace(splatParam, '([^?]*?)');
 
 	return new RegExp('^\/' + route + '\/?(?:\\?([\\s\\S]*))?$');

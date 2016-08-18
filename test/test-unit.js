@@ -200,3 +200,103 @@ describe('fs-server: test encoding', function () {
 	});
 
 });
+
+describe('fs-server: request binding', function () {
+
+	var server, port, serverUrl,
+		boundUrl = '/api/i-class/i-method';
+
+	before(function () {
+		server = new Server(userConfig).run();
+		port = server.get(server.KEYS.CONFIG).port;
+		serverUrl = 'http://localhost:' + port;
+	});
+
+	after(function () {
+		server.destroy();
+	});
+
+	it('add first request binding', function (done) {
+
+		server.bindRequest('get', 'api/:class/:method', function (req, res, url, className, methodName) {
+			res.end([className, methodName].join('+'));
+		}, server);
+
+		var options = {
+			url: serverUrl + boundUrl
+		};
+
+		request(options, function (error, response, body) {
+			assert.equal(['i-class', 'i-method'].join('+'), body);
+			done();
+		});
+
+	});
+
+	it('add second request binding', function (done) {
+
+		server.bindRequest('get', 'api/i-:class/', function (req, res, url, className) {
+			res.end(className);
+		});
+
+		var options = {
+			method: 'get',
+			url: serverUrl + '/api/i-url'
+		};
+
+		request(options, function (error, response, body) {
+			assert.equal('url', body);
+			done();
+		});
+
+	});
+
+	it('remove not exist request type and not exist route', function () {
+		server.unbindRequest('I am not exist request type');
+		server.unbindRequest('get', 'I am not exist route');
+	});
+
+	it('remove first request binding', function (done) {
+
+		server.unbindRequest('get', 'api/:class/:method');
+
+		var options = {
+			url: serverUrl + boundUrl
+		};
+
+		request(options, function (error, response, body) {
+			assert.equal(response.statusCode, 404);
+			done();
+		});
+
+	});
+
+	it('bind not exist request type', function () {
+		assert.throws(function () {
+			server.bindRequest('I am not exist ' + Math.random(), 'api/?:query', function () {
+			})
+		}, TypeError);
+	});
+
+	it('context', function (done) {
+
+		var needeContext = {},
+			callbackContext,
+			options = {
+				url: serverUrl + '/context'
+			};
+
+		server.bindRequest('get', 'context', function (req, res, url, className, methodName) {
+			callbackContext = this;
+			res.end();
+		}, needeContext);
+
+		request(options, function (error, response, body) {
+			assert(needeContext === callbackContext);
+			done();
+		});
+
+	});
+
+
+});
