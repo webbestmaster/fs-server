@@ -142,13 +142,14 @@ Server.prototype.bindRequest = function (typeArg, routeArg, callback, context) {
 	var server = this,
 		type = typeArg.toUpperCase(),
 		bindings = server.bindings,
-		route = reduceRouteString(routeArg);
+		route = reduceRouteString(routeArg),
+		regExp = routeToRegExp(route);
 
 	server.unbindRequest(typeArg, route);
 
 	bindings[type].push({
-		route: route,
-		regExp: routeToRegExp(route),
+		regExp: regExp,
+		regExpStr: regExp.toString(),
 		callback: callback,
 		context: context || null
 	});
@@ -163,13 +164,15 @@ Server.prototype.unbindRequest = function (typeArg, routeArg) {
 		type = typeArg.toUpperCase(),
 		bindings = server.bindings,
 		list = bindings[type],
-		route = reduceRouteString(routeArg || '');
+		route = reduceRouteString(routeArg || ''),
+		regExp = routeToRegExp(route),
+		regExpStr = regExp.toString();
 
 	if (list) {
 
 		list.every(function (data, index, arr) {
 
-			if (data.route === route) {
+			if (data.regExpStr === regExpStr) {
 				arr.splice(index, 1);
 				return false;
 			}
@@ -221,7 +224,6 @@ function routeToRegExp(routeArg) {
 		namedParam = /(\(\?)?:\w+/g,
 		splatParam = /\*\w+/g,
 		escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g,
-		// route = reduceRouteString(routeArg);
 		route;
 
 	route = routeArg.replace(escapeRegExp, '\\$&')

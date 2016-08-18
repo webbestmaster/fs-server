@@ -258,7 +258,7 @@ describe('fs-server: request binding', function () {
 
 	it('remove first request binding', function (done) {
 
-		server.unbindRequest('get', 'api/:class/:method');
+		server.unbindRequest('get', 'api/:query1/:query2');
 
 		var options = {
 			url: serverUrl + boundUrl
