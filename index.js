@@ -126,9 +126,16 @@ Server.prototype.destroy = function (cb) {
 
 	var server = this,
 		httpServer = server.get(server.KEYS.HTTP_SERVER),
-		port = server.get(server.KEYS.CONFIG).port;
+		port = server.get(server.KEYS.CONFIG).port,
+		bindings = server.bindings,
+		type;
 
 	server.attr = {};
+
+	// server unbind requests
+	for (type in bindings) {
+		bindings[type] = [];
+	}
 
 	httpServer.close(function () {
 		console.log('Server destroyed:', ip.address() + ':' + port);

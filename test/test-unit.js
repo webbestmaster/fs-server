@@ -212,10 +212,6 @@ describe('fs-server: request binding', function () {
 		serverUrl = 'http://localhost:' + port;
 	});
 
-	after(function () {
-		server.destroy();
-	});
-
 	it('add first request binding', function (done) {
 
 		server.bindRequest('get', 'api/:class/:method', function (req, res, url, className, methodName) {
@@ -298,5 +294,9 @@ describe('fs-server: request binding', function () {
 
 	});
 
+	it('destroy and unbind all requests', function () {
+		server.destroy();
+		assert(server.bindings.GET.length === 0);
+	});
 
 });
