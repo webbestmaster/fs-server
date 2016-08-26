@@ -2,17 +2,10 @@ var path = require('path');
 
 module.exports = {
 
-	port: process.env.PORT || 3000, // used
+	root: __dirname, 					// path to front-end part of site
 
-	root: __dirname, // used
-	
-/*
-	onRequest: function (req, res) {
-		console.log('I am onRequest');
-		cb();
-	},
-*/
+	port: process.env.PORT || 3000, 	// default port
 
-	page404: path.join(__dirname, '404', 'index.html') // used
+	page404: path.join(__dirname, '404', 'index.html') // optional, path to 404 page
 
 };

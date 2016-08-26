@@ -97,7 +97,7 @@ Server.prototype.initialize = function (userConfigArg) {
 			boundRequest.callback.apply(boundRequest.context, [req, res].concat(boundRequest.match));
 
 		} else {
-			fileHunter.find(req, res, null, fileHunter.send);
+			fileHunter.find(req, res);
 		}
 
 	});

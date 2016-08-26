@@ -7,6 +7,11 @@ var mime = require('mime-types');
 var zlib = require('zlib');
 var defaultsConfig = require('./defaults-config');
 
+/**
+ * FileHunter constructor
+ * @param {object} options - config for file hunter
+ * @return {FileHunter} instance
+ */
 function FileHunter(options) {
 
 	var fileHunter = this;
@@ -19,18 +24,31 @@ function FileHunter(options) {
 		fileHunter.page404 = path.join(options.root, options.page404);
 	}
 
-	fileHunter.send = fileHunter.send.bind(fileHunter);
-
 }
 
+/**
+ * Private
+ * Just a hook to reduce extra check in FileHunter.prototype.send
+ */
 FileHunter.prototype.fakeFileInfo = {
 	mtime: Date.now().toString()
 };
 
+/**
+ * Private
+ * RegExp to detect browser's encoding
+ */
 FileHunter.prototype.reDeflate = /\bdeflate\b/;
 FileHunter.prototype.reGzip = /\bgzip\b/;
 
-FileHunter.prototype.find = function (req, res, err, cb) {
+/**
+ * Public
+ * Find to send file to client
+ * @param {object} req - native httpServer request object
+ * @param {object} res - native httpServer response object
+ * @return {undefined} undefined
+ */
+FileHunter.prototype.find = function (req, res) {
 
 	// FIXME: add here check for err if needed
 	var fileHunter = this,
@@ -41,7 +59,7 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 	fs.stat(pathName, function (err, fileInfo) {
 
 		if (err) {
-			cb(req, res, err, pathName);
+			fileHunter.send(req, res, err, pathName);
 			return;
 		}
 
@@ -57,12 +75,24 @@ FileHunter.prototype.find = function (req, res, err, cb) {
 			}
 		}
 
-		cb(req, res, null, pathName, fileInfo);
+		fileHunter.send(req, res, null, pathName, fileInfo);
 
 	});
 
 };
 
+
+// TODO: TRY TO SIMPLIFY THIS!!!
+/**
+ * Private
+ * Send file to client
+ * @param {object} req - native httpServer request object
+ * @param {object} res - native httpServer response object
+ * @param {Error} err - error if error, null if all is correct
+ * @param {string} path - path to needed file
+ * @param {object} fileInfo - founded file info
+ * @return {undefined} undefined
+ */
 FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 
 	var fileHunter = this,
@@ -71,7 +101,7 @@ FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 		acceptEncoding;
 
 	if (err) {
-		fileHunter.send404(req, res, err, path);
+		fileHunter.send404(req, res, path);
 		return;
 	}
 
@@ -89,7 +119,7 @@ FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 	res.setHeader('Last-Modified', lastModified);
 	res.setHeader('Cache-Control', 'private, max-age=300');
 
-	file = 	new fs.ReadStream(path);
+	file = new fs.ReadStream(path);
 	acceptEncoding = req.headers['accept-encoding'] || '';
 
 	// Note: this is not a conformant accept-encoding parser.
@@ -107,7 +137,6 @@ FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 	file.on('error', function (err) {
 		res.statusCode = 404;
 		res.end();
-		// fileHunter.send404(req, res, err);
 	});
 
 	// client close connection
@@ -119,7 +148,15 @@ FileHunter.prototype.send = function (req, res, err, path, fileInfo) {
 
 };
 
-FileHunter.prototype.send404 = function (req, res, err, path) {
+/**
+ * Private
+ * Send error 404
+ * @param {object} req - native httpServer request object
+ * @param {object} res - native httpServer response object
+ * @param {string} path - path to needed file
+ * @return {undefined} undefined
+ */
+FileHunter.prototype.send404 = function (req, res, path) {
 
 	var fileHunter = this,
 		mimeType = mime.lookup(path);
