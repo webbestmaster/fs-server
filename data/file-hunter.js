@@ -65,9 +65,11 @@ FileHunter.prototype.find = function (req, res) {
 
 		// if path walk to directory - add /index.html to end ot the path
 		if (fileInfo.isDirectory()) {
+			// check for '/' at end of path
 			if (pathName[pathName.length - 1] === path.sep) {
 				pathName = path.join(pathName, 'index.html');
 			} else {
+				// redirect
 				res.statusCode = 302;
 				res.setHeader('Location', req.url + path.sep);
 				res.end();
