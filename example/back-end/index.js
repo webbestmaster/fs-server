@@ -1,32 +1,26 @@
 var Server = require('./../../'); // get server
-var userConfig = require('./user-config'); // get config
 
-var server = new Server(userConfig).run(); // create server with config and run
+var serverConfig = {
+	root: './../front-end/', // path to front-end part of site
+	port: process.env.PORT || 3000, // optional, recommended this, or do not use this field
+	page404: 'custom-404-page/index.html' // optional, path to custom 404 page
+};
+
+var server = new Server(serverConfig) // create server with config
+					.run(); // create server with config and run
 
 server.bindRequest(
-	'get',
-	'api',
-	function (req, res) {
 
-	server.unbindRequest('get', '///api///');
+	'get', // request's type
 
-	res.end('hi there !!!!');
+	'api/:controller/:action/:params', // request's url mask
 
-});
+	function (req, res, url, controller, action, params) { // callback with matched parameters
+		res.end('hi there !!!! ' + [url, controller, action, params].join(' - '));
+	},
 
-server.bindRequest('get', 'api/:dd/ss/p:ee', function (req, res, url, dd, ee) {
+	this // optional parameter to set callback execution context
 
-	res.end('hi dd !!!!      ' + dd + '--' + ee);
-
-});
-
-server.bindRequest('get', 'hapi/:input', function (req, res) {
-
-	res.end('hi hh !!!!');
-
-});
-
-
-
+);
 
 

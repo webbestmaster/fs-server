@@ -132,7 +132,7 @@ Server.prototype.run = function () {
 
 	httpServer.listen(port);
 
-	console.log('Server started:', ip.address() + ':' + port);
+	console.log('Server started: http://' + ip.address() + ':' + port);
 
 	return server;
 

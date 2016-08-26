@@ -1,6 +1,6 @@
 {
   "name": "fs-server",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Simple file server",
   "license": "MIT",
   "main": "index.js",
